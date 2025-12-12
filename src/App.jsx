@@ -2,6 +2,9 @@ import React, { useState, useRef, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, X, Mail, Linkedin, Github, ExternalLink } from 'lucide-react';
 
 const Portfolio3D = () => {
+  // AJOUT 1 : État pour suivre la largeur de la fenêtre
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
   const [currentSection, setCurrentSection] = useState('home');
   const [selectedProject, setSelectedProject] = useState(null);
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -11,6 +14,7 @@ const Portfolio3D = () => {
   const bgRef = useRef(null);
 
   const projects = [
+    // ... (Votre tableau projects inchangé) ...
     {
       id: 1,
       title: "Dashboard BI Dynamique",
@@ -180,18 +184,31 @@ const Portfolio3D = () => {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selectedProject]);
+  
+  // AJOUT 2 : useEffect pour gérer le redimensionnement
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+
+    window.addEventListener('resize', handleResize);
+    // Nettoyage lors du démontage du composant
+    return () => window.removeEventListener('resize', handleResize);
+  }, []); // Dépendance vide pour exécution une seule fois
 
   // Canvas-based animated starfield / nebula background (no external image)
   useEffect(() => {
     const canvas = bgRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    let width = 0;
-    let height = 0;
+    // MODIFICATION : Utiliser windowWidth
+    let width = window.innerWidth;
+    let height = window.innerHeight;
     let stars = [];
     let animationId;
 
     const resize = () => {
+      // MODIFICATION : Utiliser window.innerWidth et window.innerHeight
       width = canvas.width = window.innerWidth;
       height = canvas.height = window.innerHeight;
       // generate stars based on area
@@ -257,12 +274,13 @@ const Portfolio3D = () => {
     };
 
     resize();
-    window.addEventListener('resize', resize);
+    // Le listener de redimensionnement est déjà géré par l'AJOUT 2.
+    // window.addEventListener('resize', resize); // Pas nécessaire ici, mais inoffensif
     draw();
 
     return () => {
       cancelAnimationFrame(animationId);
-      window.removeEventListener('resize', resize);
+      // window.removeEventListener('resize', resize); // Pas nécessaire ici, mais inoffensif
     };
   }, []);
 
@@ -296,17 +314,39 @@ const Portfolio3D = () => {
     }
   };
 
+  // MODIFICATION CRITIQUE : Utilisation de windowWidth pour l'adaptabilité 3D
   const getSlideTransform = (index) => {
     const diff = index - currentSlide;
     const absPos = ((diff % projects.length) + projects.length) % projects.length;
 
+    // Définition des valeurs adaptatives
+    let translateSide;
+    let translateDepth;
+    let scaleFactor;
+
+    if (windowWidth < 768) { // Écrans Mobiles
+        translateSide = '45%'; // Moins de décalage latéral
+        translateDepth = '-100px'; // Moins de profondeur
+        scaleFactor = '0.8';
+    } else if (windowWidth < 1024) { // Tablettes / petits ordinateurs
+        translateSide = '55%';
+        translateDepth = '-200px'; 
+        scaleFactor = '0.75';
+    } else { // Grands écrans (1024px et plus)
+        translateSide = '70%';
+        translateDepth = '-300px';
+        scaleFactor = '0.7';
+    }
+
+
     if (absPos === 0) {
       return 'translateX(0) translateZ(0) rotateY(0deg) scale(1)';
     } else if (absPos === 1 || absPos === -3) {
-      return 'translateX(70%) translateZ(-300px) rotateY(-45deg) scale(0.7)';
+      return `translateX(${translateSide}) translateZ(${translateDepth}) rotateY(-45deg) scale(${scaleFactor})`;
     } else if (absPos === projects.length - 1 || absPos === -1) {
-      return 'translateX(-70%) translateZ(-300px) rotateY(45deg) scale(0.7)';
+      return `translateX(-${translateSide}) translateZ(${translateDepth}) rotateY(45deg) scale(${scaleFactor})`;
     } else {
+      // Les slides lointaines restent fixes en profondeur, mais on peut les ajuster si nécessaire
       return 'translateX(0) translateZ(-600px) scale(0.4)';
     }
   };
@@ -347,62 +387,55 @@ const Portfolio3D = () => {
         </nav>
 
         {/* Home Section */}
-        <div data-section="home" className="min-h-screen flex items-center justify-start px-6 relative">
-          <div className="animate-fade-in w-full max-w-5xl">
-            <div className="inline-block mb-8">
+        <div data-section="home" className="min-h-screen flex items-center justify-center px-4 sm:px-6 relative">
+          
+          <div className="animate-fade-in w-full max-w-6xl">
+            <div className="flex justify-center mb-6 sm:mb-8">
               <span className="text-xs uppercase tracking-[0.3em] text-cyan-400 font-bold border border-cyan-400/30 px-4 py-2 rounded-full">
                 Portfolio
               </span>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-[auto,1fr] gap-4 md:gap-6 items-center">
+            <div className="flex flex-col items-center text-center space-y-6 sm:space-y-8">
               {/* Photo */}
-              <div className="flex justify-center md:justify-start order-2 md:order-1">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-br from-cyan-500 to-pink-500 rounded-full blur-2xl opacity-30 animate-pulse"></div>
-                  <img
-                    src="/profile.png"
-                    alt="Lyes Djebbar"
-                    className="relative w-40 h-40 md:w-56 md:h-56 rounded-full object-cover border-2 border-white/30 shadow-2xl"
-                  />
-                </div>
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-cyan-500 to-pink-500 rounded-full blur-2xl opacity-30 animate-pulse"></div>
+                <img
+                  src="/profile.png"
+                  alt="Lyes Djebbar"
+                  className="relative w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 lg:w-56 lg:h-56 rounded-full object-cover border-2 border-white/30 shadow-2xl"
+                />
               </div>
 
               {/* Text Content */}
-              <div className="flex flex-col items-start text-left space-y-4 order-1 md:order-2">
-                <div className="space-y-2">
-                  <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tighter leading-tight">
-                    <span className="block" style={{
-                      background: 'linear-gradient(135deg, #ffffff 0%, #00ffff 50%, #ff00ff 100%)',
-                      WebkitBackgroundClip: 'text',
-                      WebkitTextFillColor: 'transparent'
-                    }}>
-                      LYES
-                    </span>
-                    <span className="block" style={{
-                      background: 'linear-gradient(135deg, #ff00ff 0%, #00ffff 50%, #ffffff 100%)',
-                      WebkitBackgroundClip: 'text',
-                      WebkitTextFillColor: 'transparent'
-                    }}>
-                      DJEBBAR
-                    </span>
-                  </h1>
+              <div className="flex flex-col items-center space-y-4 sm:space-y-6">
+                <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tighter leading-tight">
+                  <span className="block" style={{
+                    background: 'linear-gradient(135deg, #ffffff 0%, #00ffff 50%, #ff00ff 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent'
+                  }}>
+                    LYES
+                  </span>
+                  <span className="block" style={{
+                    background: 'linear-gradient(135deg, #ff00ff 0%, #00ffff 50%, #ffffff 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent'
+                  }}>
+                    DJEBBAR
+                  </span>
+                </h1>
 
-
-                </div>
-
-                <p className="text-xs sm:text-sm text-gray-400 leading-relaxed max-w-lg">
-                  👋 Salut, moi c’est Lyes Djebbar<br />
+                <p className="text-sm sm:text-base md:text-lg text-gray-300 leading-relaxed max-w-2xl px-4">
+                  👋 Salut, moi c'est Lyes Djebbar<br />
                   🎓 Actuellement Étudiant en Data & IA à l'EPITA<br />
-                  ⚙️ Je travaille sur des projets en Data Science, IA, Cloud et d’autres domaines liés à l’écosystème data.
+                  ⚙️ Je travaille sur des projets en Data Science, IA, Cloud et d'autres domaines liés à l'écosystème data.
                 </p>
 
-
-
-                <div className="flex flex-col sm:flex-row gap-3 mt-2">
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-4 w-full sm:w-auto px-4 sm:px-0">
                   <button
                     onClick={() => scrollToSection('projects')}
-                    className="group relative px-6 py-3 text-xs font-bold uppercase tracking-widest overflow-hidden"
+                    className="group relative px-8 py-4 text-xs sm:text-sm font-bold uppercase tracking-widest overflow-hidden w-full sm:w-auto"
                     style={{
                       background: 'linear-gradient(135deg, #00ffff 0%, #ff00ff 100%)',
                       borderRadius: '0px'
@@ -416,21 +449,22 @@ const Portfolio3D = () => {
                     href="/CV.pdf"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group relative px-6 py-3 text-xs font-bold uppercase tracking-widest overflow-hidden text-center"
+                    className="group relative px-8 py-4 text-xs sm:text-sm font-bold uppercase tracking-widest overflow-hidden text-center w-full sm:w-auto"
                     style={{
-                      background: 'linear-gradient(135deg, #00ffff 0%, #ff00ff 100%)',
-                      border: '1px solid rgba(0, 255, 255, 0.5)',
+                      background: 'transparent',
+                      border: '2px solid',
+                      borderImage: 'linear-gradient(135deg, #00ffff 0%, #ff00ff 100%) 1',
                       borderRadius: '0px'
                     }}
                   >
-                    <span className="relative z-10 text-cyan-400 group-hover:text-white transition-colors duration-300">Voir mon CV</span>
-                    <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 to-pink-500/20 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
+                    <span className="relative z-10 bg-gradient-to-r from-cyan-400 to-pink-400 bg-clip-text text-transparent group-hover:from-white group-hover:to-white transition-all duration-300">Voir mon CV</span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 to-pink-500/10 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
                   </a>
                 </div>
               </div>
             </div>
 
-            <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
+            <div className="absolute bottom-12 left-1/2 -translate-x-1/2 hidden sm:flex flex-col items-center gap-2">
               <div className="w-px h-16 bg-gradient-to-b from-cyan-400 to-transparent animate-pulse"></div>
             </div>
           </div>
@@ -450,7 +484,11 @@ const Portfolio3D = () => {
                 </span>
               </h2>
 
-              <div className="relative h-[350px] sm:h-[400px] md:h-[400px] lg:h-[500px]" style={{ perspective: '2000px' }}>
+              {/* MODIFICATION CRITIQUE : Utilisation de windowWidth pour la perspective */}
+              <div 
+                className="relative h-[350px] sm:h-[400px] md:h-[400px] lg:h-[500px]" 
+                style={{ perspective: windowWidth < 768 ? '1000px' : '2000px' }}
+              >
                 {projects.map((project, index) => {
                   const isActive = index === currentSlide;
                   return (
@@ -477,9 +515,11 @@ const Portfolio3D = () => {
                         {/* Media only as main visual */}
                         {project.media && project.media[0] && (project.media[0].type === 'video' ? (
                           <div className="w-full mb-4 overflow-hidden rounded-xl">
+                            {/* Les vidéos sont maintenant gérées par la règle index.css */}
                             <video src={project.media[0].url} muted playsInline autoPlay loop className="w-full h-52 md:h-64 lg:h-72 object-cover rounded-xl" />
                           </div>
                         ) : (
+                          // Les images sont maintenant gérées par la règle index.css
                           <img src={project.media[0].url} alt={project.media[0].caption || project.title} className="w-full h-52 md:h-64 lg:h-72 object-cover rounded-xl mb-4" />
                         ))}
 
@@ -491,14 +531,18 @@ const Portfolio3D = () => {
 
                 <button
                   onClick={prevSlide}
-                  className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-16 p-4 bg-black/60 backdrop-blur-xl border border-white/10 hover:border-cyan-400/50 transition-all duration-300 z-10"
+                  // CORRECTION : Adaptabilité du positionnement pour les flèches
+                  // Décalage négatif pour centrer la flèche sur le bord (translate-x-1/2) et -16 sur grand écran
+                  className="absolute left-0 top-1/2 -translate-y-1/2 p-4 bg-black/60 backdrop-blur-xl border border-white/10 hover:border-cyan-400/50 transition-all duration-300 z-10 -translate-x-1/2 md:-translate-x-16"
                 >
                   <ChevronLeft size={32} className="text-cyan-400" />
                 </button>
 
                 <button
                   onClick={nextSlide}
-                  className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-16 p-4 bg-black/60 backdrop-blur-xl border border-white/10 hover:border-cyan-400/50 transition-all duration-300 z-10"
+                  // CORRECTION : Adaptabilité du positionnement pour les flèches
+                  // Décalage positif pour centrer la flèche sur le bord (translate-x-1/2) et +16 sur grand écran
+                  className="absolute right-0 top-1/2 -translate-y-1/2 p-4 bg-black/60 backdrop-blur-xl border border-white/10 hover:border-cyan-400/50 transition-all duration-300 z-10 translate-x-1/2 md:translate-x-16"
                 >
                   <ChevronRight size={32} className="text-cyan-400" />
                 </button>
@@ -522,7 +566,7 @@ const Portfolio3D = () => {
           </div>
         )}
 
-        {/* Project Detail View */}
+        {/* Project Detail View (Pas de changement requis ici pour l'adaptabilité) */}
         {selectedProject && (
           <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-lg overflow-y-auto pt-20">
             <button

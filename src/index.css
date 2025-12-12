@@ -24,6 +24,13 @@ body {
   overflow-x: hidden;
 }
 
+/* AJOUT : Règle pour l'adaptabilité des médias (images et vidéos) */
+img, video {
+  max-width: 100%; 
+  height: auto; /* Maintient le ratio d'aspect */
+  display: block; /* Évite les problèmes d'espace blanc sous les images */
+}
+
 @keyframes fade-in {
   from {
     opacity: 0;
