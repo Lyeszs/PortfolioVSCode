@@ -355,7 +355,22 @@ const Portfolio3D = () => {
     <>
       {/* Animated Space Background (canvas - no external image) */}
       <canvas ref={bgRef} className="fixed inset-0 pointer-events-none z-0" />
-
+{/* INDICATEUR DE RÉSOLUTION - À RETIRER EN PRODUCTION */}
+<div className="fixed top-4 left-4 z-[100] bg-black/80 backdrop-blur-md text-cyan-400 border border-cyan-400/50 px-4 py-2 text-xs font-mono rounded pointer-events-none transition-all duration-300">
+  <span className="font-bold uppercase tracking-widest">Résolution :</span> 
+  <span className="ml-2 font-normal">{windowWidth}px</span>
+  <span className="ml-4 font-bold uppercase tracking-widest">Breakpoint :</span> 
+  <span className="ml-2 font-normal">
+    {/* Logique pour déterminer le breakpoint actif */}
+    {windowWidth >= 1536 ? '2xl:' : 
+     windowWidth >= 1280 ? 'xl:' : 
+     windowWidth >= 1024 ? 'lg:' : 
+     windowWidth >= 768 ? 'md:' : 
+     windowWidth >= 640 ? 'sm:' : 
+     'Mobile'}
+  </span>
+</div>
+{/* FIN INDICATEUR DE RÉSOLUTION */}
       <div className="bg-black/40 text-white relative z-10" style={{ fontFamily: "'Space Grotesk', 'Inter', sans-serif" }}>
         {/* Grid Pattern */}
         <div className="fixed inset-0 pointer-events-none opacity-5" style={{
@@ -409,7 +424,7 @@ const Portfolio3D = () => {
 
               {/* Text Content */}
               <div className="flex flex-col items-center space-y-4 sm:space-y-6">
-                <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tighter leading-tight">
+                <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black tracking-tighter leading-tight">
                   <span className="block" style={{
                     background: 'linear-gradient(135deg, #ffffff 0%, #00ffff 50%, #ff00ff 100%)',
                     WebkitBackgroundClip: 'text',
@@ -426,7 +441,7 @@ const Portfolio3D = () => {
                   </span>
                 </h1>
 
-                <p className="text-sm sm:text-base md:text-lg text-gray-300 leading-relaxed max-w-2xl px-4">
+                <p className="text-xs sm:text-sm md:text-base lg:text-lg text-gray-300 leading-relaxed max-w-2xl px-4">
                   👋 Salut, moi c'est Lyes Djebbar<br />
                   🎓 Actuellement Étudiant en Data & IA à l'EPITA<br />
                   ⚙️ Je travaille sur des projets en Data Science, IA, Cloud et d'autres domaines liés à l'écosystème data.
@@ -473,7 +488,7 @@ const Portfolio3D = () => {
         {/* Projects Section */}
         {!selectedProject && (
           <div data-section="projects" className="min-h-screen flex items-center justify-center px-3 sm:px-4 md:px-6 pt-24">
-            <div className="w-full max-w-4xl sm:max-w-6xl md:max-w-5xl lg:max-w-7xl">
+            <div className="w-full max-w-4xl sm:max-w-6xl md:max-w-5xl lg:max-w-70xl">
               <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-center mb-16 uppercase">
                 <span style={{
                   background: 'linear-gradient(135deg, #00ffff 0%, #ff00ff 100%)',
