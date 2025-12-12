@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, X, Mail, Linkedin, Github, ExternalLink } from 'lucide-react';
+import { ChevronLeft, ChevronRight, X, Mail, Linkedin, Github, ExternalLink, Briefcase, Calendar } from 'lucide-react';
 
 const Portfolio3D = () => {
-  // AJOUT 1 : État pour suivre la largeur de la fenêtre
+  // État pour suivre la largeur de la fenêtre
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
   const [currentSection, setCurrentSection] = useState('home');
@@ -13,8 +13,20 @@ const Portfolio3D = () => {
   const containerRef = useRef(null);
   const bgRef = useRef(null);
 
+  // --- DONNÉES EXPÉRIENCES ---
+  const experiences = [
+    {
+      id: 1,
+      role: "Ingénieur Data Science recherche/développement (Stage)",
+      company: "IDEMIA",
+      period: "mai 2025 - juin 2025 (2 mois)",
+      description: "Développement de nouvelles fonctionnalités et Optimisation des algorithmes d'un Outil d'Analyse de Performances Biométriques.",
+      tags: ["Python", "Streamlit", "Pandas, NumPy", "Biométrie", "Computer Vision" , "Machine Learning"],
+      logo: "/idemiagroup_logo.jpg" 
+    },
+  ];
+
   const projects = [
-    // ... (Votre tableau projects inchangé) ...
     {
       id: 1,
       title: "Dashboard BI Dynamique",
@@ -40,7 +52,7 @@ const Portfolio3D = () => {
         }
       ],
       media: [
-        { type: "video", url: "/vidtest1.mp4", caption: "Démo Dashboard" },
+        { type: "image", url: "/powerbi.png", caption: "Démo Dashboard" },
         { type: "image", url: "/api/placeholder/800/600", caption: "Dashboard principal" },
         { type: "image", url: "/api/placeholder/800/600", caption: "Carte géospatiale" }
       ]
@@ -79,7 +91,7 @@ const Portfolio3D = () => {
       id: 3,
       title: "Détection d'Objets 3D",
       subtitle: "Interaction Main Virtuelle + Génération d'objets 3D",
-      description: "Système de détection en temps réel via Mediapipe permettant d'attraper des objets virtuels avec notre main, avec possibilité de générer des objets 3D, si on filme un object il est automatiquement détécté et un object 3d tombe a l'écran si j'ai le modele 3d (.glb) correspondant. Développé à la pour être affiché lors de Journées Portes Ouvertes",
+      description: "Système de détection en temps réel via Mediapipe permettant d'attraper des objets virtuels avec notre main, avec possibilité de générer des objets 3D, si on filme un object il est automatiquement détécté et un object 3d tombe a l'écran si j'ai le modele 3d (.glb) correspondant. Développé à la base pour être affiché lors de Journées Portes Ouvertes",
       techStack: ["MediaPipe", "Gemini API", "Three.js", "React"],
       color: "from-orange-400 to-pink-500",
       features: [
@@ -135,7 +147,7 @@ const Portfolio3D = () => {
         }
       ],
       media: [
-        { type: "video", url: "/vidtest1.mp4", caption: "Démo Infra Cloud" },
+        { type: "video", url: "/kafka.mp4", caption: "Démo Infra Cloud" },
         { type: "image", url: "/api/placeholder/800/600", caption: "Architecture cloud" },
         { type: "image", url: "/api/placeholder/800/600", caption: "Dashboard Streamlit" }
       ]
@@ -177,41 +189,36 @@ const Portfolio3D = () => {
       if (selectedProject) {
         if (e.key === 'Escape') closeProject();
       } else {
-        if (e.key === 'ArrowRight') nextSlide();
-        if (e.key === 'ArrowLeft') prevSlide();
+        // Navigation par touches de flèche désactivée
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selectedProject]);
   
-  // AJOUT 2 : useEffect pour gérer le redimensionnement
+  // AJOUT : useEffect pour gérer le redimensionnement
   useEffect(() => {
     const handleResize = () => {
       setWindowWidth(window.innerWidth);
     };
 
     window.addEventListener('resize', handleResize);
-    // Nettoyage lors du démontage du composant
     return () => window.removeEventListener('resize', handleResize);
-  }, []); // Dépendance vide pour exécution une seule fois
+  }, []); 
 
   // Canvas-based animated starfield / nebula background (no external image)
   useEffect(() => {
     const canvas = bgRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    // MODIFICATION : Utiliser windowWidth
     let width = window.innerWidth;
     let height = window.innerHeight;
     let stars = [];
     let animationId;
 
     const resize = () => {
-      // MODIFICATION : Utiliser window.innerWidth et window.innerHeight
       width = canvas.width = window.innerWidth;
       height = canvas.height = window.innerHeight;
-      // generate stars based on area
       const count = Math.max(100, Math.floor((width * height) / 10000));
       stars = [];
       for (let i = 0; i < count; i++) {
@@ -274,13 +281,10 @@ const Portfolio3D = () => {
     };
 
     resize();
-    // Le listener de redimensionnement est déjà géré par l'AJOUT 2.
-    // window.addEventListener('resize', resize); // Pas nécessaire ici, mais inoffensif
     draw();
 
     return () => {
       cancelAnimationFrame(animationId);
-      // window.removeEventListener('resize', resize); // Pas nécessaire ici, mais inoffensif
     };
   }, []);
 
@@ -325,8 +329,8 @@ const Portfolio3D = () => {
     let scaleFactor;
 
     if (windowWidth < 768) { // Écrans Mobiles
-        translateSide = '45%'; // Moins de décalage latéral
-        translateDepth = '-100px'; // Moins de profondeur
+        translateSide = '45%'; 
+        translateDepth = '-100px'; 
         scaleFactor = '0.8';
     } else if (windowWidth < 1024) { // Tablettes / petits ordinateurs
         translateSide = '55%';
@@ -346,7 +350,6 @@ const Portfolio3D = () => {
     } else if (absPos === projects.length - 1 || absPos === -1) {
       return `translateX(-${translateSide}) translateZ(${translateDepth}) rotateY(45deg) scale(${scaleFactor})`;
     } else {
-      // Les slides lointaines restent fixes en profondeur, mais on peut les ajuster si nécessaire
       return 'translateX(0) translateZ(-600px) scale(0.4)';
     }
   };
@@ -355,22 +358,23 @@ const Portfolio3D = () => {
     <>
       {/* Animated Space Background (canvas - no external image) */}
       <canvas ref={bgRef} className="fixed inset-0 pointer-events-none z-0" />
-{/* INDICATEUR DE RÉSOLUTION - À RETIRER EN PRODUCTION */}
-<div className="fixed top-4 left-4 z-[100] bg-black/80 backdrop-blur-md text-cyan-400 border border-cyan-400/50 px-4 py-2 text-xs font-mono rounded pointer-events-none transition-all duration-300">
-  <span className="font-bold uppercase tracking-widest">Résolution :</span> 
-  <span className="ml-2 font-normal">{windowWidth}px</span>
-  <span className="ml-4 font-bold uppercase tracking-widest">Breakpoint :</span> 
-  <span className="ml-2 font-normal">
-    {/* Logique pour déterminer le breakpoint actif */}
-    {windowWidth >= 1536 ? '2xl:' : 
-     windowWidth >= 1280 ? 'xl:' : 
-     windowWidth >= 1024 ? 'lg:' : 
-     windowWidth >= 768 ? 'md:' : 
-     windowWidth >= 640 ? 'sm:' : 
-     'Mobile'}
-  </span>
-</div>
-{/* FIN INDICATEUR DE RÉSOLUTION */}
+      
+      {/* INDICATEUR DE RÉSOLUTION - NOUVEAU BLOC À GARDER POUR DÉBUGGER */}
+      <div className="fixed top-4 left-4 z-[100] bg-black/80 backdrop-blur-md text-cyan-400 border border-cyan-400/50 px-4 py-2 text-xs font-mono rounded pointer-events-none transition-all duration-300">
+        <span className="font-bold uppercase tracking-widest">Résolution :</span> 
+        <span className="ml-2 font-normal">{windowWidth}px</span>
+        <span className="ml-4 font-bold uppercase tracking-widest">Breakpoint :</span> 
+        <span className="ml-2 font-normal">
+          {windowWidth >= 1536 ? '2xl:' : 
+           windowWidth >= 1280 ? 'xl:' : 
+           windowWidth >= 1024 ? 'lg:' : 
+           windowWidth >= 768 ? 'md:' : 
+           windowWidth >= 640 ? 'sm:' : 
+           'Mobile'}
+        </span>
+      </div>
+      {/* FIN INDICATEUR DE RÉSOLUTION */}
+
       <div className="bg-black/40 text-white relative z-10" style={{ fontFamily: "'Space Grotesk', 'Inter', sans-serif" }}>
         {/* Grid Pattern */}
         <div className="fixed inset-0 pointer-events-none opacity-5" style={{
@@ -391,7 +395,8 @@ const Portfolio3D = () => {
                   onClick={() => scrollToSection(section)}
                   className={`uppercase text-xs font-bold tracking-widest transition-all duration-300 relative px-3 py-1 ${currentSection === section ? 'text-cyan-400' : 'text-white/80 hover:text-white'}`}
                 >
-                  {section === 'home' ? 'HOME' : section === 'about' ? 'ABOUT' : section.toUpperCase()}
+                  {/* MODIFICATION NAVIGATION : 'about' devient 'EXPERIENCE' */}
+                  {section === 'home' ? 'HOME' : section === 'about' ? 'EXPERIENCE' : section.toUpperCase()}
                   {currentSection === section && (
                     <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-gradient-to-r from-cyan-400 to-pink-500"></div>
                   )}
@@ -402,55 +407,70 @@ const Portfolio3D = () => {
         </nav>
 
         {/* Home Section */}
-        <div data-section="home" className="min-h-screen flex items-center justify-center px-4 sm:px-6 relative">
-          
-          <div className="animate-fade-in w-full max-w-6xl">
-            <div className="flex justify-center mb-6 sm:mb-8">
+        {/* Correction de l'alignement : justify-center */}
+        <div data-section="home" className="min-h-screen flex items-center justify-center px-6 relative">
+          <div className="animate-fade-in w-full max-w-5xl">
+            <div className="inline-block mb-8">
               <span className="text-xs uppercase tracking-[0.3em] text-cyan-400 font-bold border border-cyan-400/30 px-4 py-2 rounded-full">
                 Portfolio
               </span>
             </div>
 
-            <div className="flex flex-col items-center text-center space-y-6 sm:space-y-8">
+            <div className="grid grid-cols-1 md:grid-cols-[auto,1fr] gap-4 md:gap-6 items-center">
               {/* Photo */}
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-cyan-500 to-pink-500 rounded-full blur-2xl opacity-30 animate-pulse"></div>
-                <img
-                  src="/profile.png"
-                  alt="Lyes Djebbar"
-                  className="relative w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 lg:w-56 lg:h-56 rounded-full object-cover border-2 border-white/30 shadow-2xl"
-                />
+              <div className="flex justify-center md:justify-start order-2 md:order-1">
+                <div className="relative">
+                  <div className="absolute inset-0 bg-gradient-to-br from-cyan-500 to-pink-500 rounded-full blur-2xl opacity-30 animate-pulse"></div>
+                  <img
+                    src="/profile.png"
+                    alt="Lyes Djebbar"
+                    // CORRECTION PHOTO : Ajustement des tailles pour lg et 2xl
+                    className="relative w-40 h-40 sm:w-48 sm:h-48 lg:w-56 lg:h-56 2xl:w-72 2xl:h-72 rounded-full object-cover border-2 border-white/30 shadow-2xl"
+                  />
+                </div>
               </div>
 
               {/* Text Content */}
-              <div className="flex flex-col items-center space-y-4 sm:space-y-6">
-                <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black tracking-tighter leading-tight">
-                  <span className="block" style={{
-                    background: 'linear-gradient(135deg, #ffffff 0%, #00ffff 50%, #ff00ff 100%)',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent'
-                  }}>
-                    LYES
-                  </span>
-                  <span className="block" style={{
-                    background: 'linear-gradient(135deg, #ff00ff 0%, #00ffff 50%, #ffffff 100%)',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent'
-                  }}>
-                    DJEBBAR
-                  </span>
-                </h1>
+              <div className="flex flex-col items-start text-left space-y-4 order-1 md:order-2 w-full">
+                <div className="space-y-2">
+                  <h1 
+                    // CORRECTION TITRE : Ajustement des tailles pour lg et 2xl
+                    className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl 2xl:text-[100px] font-black tracking-tighter leading-tight"
+                  >
+                    <span className="block" style={{
+                      background: 'linear-gradient(135deg, #ffffff 0%, #00ffff 50%, #ff00ff 100%)',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent'
+                    }}>
+                      LYES
+                    </span>
+                    <span className="block" style={{
+                      background: 'linear-gradient(135deg, #ff00ff 0%, #00ffff 50%, #ffffff 100%)',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent'
+                    }}>
+                      DJEBBAR
+                    </span>
+                  </h1>
 
-                <p className="text-xs sm:text-sm md:text-base lg:text-lg text-gray-300 leading-relaxed max-w-2xl px-4">
-                  👋 Salut, moi c'est Lyes Djebbar<br />
+
+                </div>
+
+                <p 
+                  // CORRECTION DESCRIPTION : Ajustement des tailles pour lg et 2xl
+                  className="text-xs sm:text-sm text-gray-400 leading-relaxed max-w-lg lg:text-lg 2xl:text-xl"
+                >
+                  👋 Salut, moi c’est Lyes Djebbar<br />
                   🎓 Actuellement Étudiant en Data & IA à l'EPITA<br />
-                  ⚙️ Je travaille sur des projets en Data Science, IA, Cloud et d'autres domaines liés à l'écosystème data.
+                  ⚙️ Je travaille sur des projets en Data Science, IA, Cloud et d’autres domaines liés à l’écosystème data.
                 </p>
 
-                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-4 w-full sm:w-auto px-4 sm:px-0">
+
+
+                <div className="flex flex-col sm:flex-row gap-3 mt-2">
                   <button
                     onClick={() => scrollToSection('projects')}
-                    className="group relative px-8 py-4 text-xs sm:text-sm font-bold uppercase tracking-widest overflow-hidden w-full sm:w-auto"
+                    className="group relative px-6 py-3 text-xs font-bold uppercase tracking-widest overflow-hidden"
                     style={{
                       background: 'linear-gradient(135deg, #00ffff 0%, #ff00ff 100%)',
                       borderRadius: '0px'
@@ -464,22 +484,21 @@ const Portfolio3D = () => {
                     href="/CV.pdf"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group relative px-8 py-4 text-xs sm:text-sm font-bold uppercase tracking-widest overflow-hidden text-center w-full sm:w-auto"
+                    className="group relative px-6 py-3 text-xs font-bold uppercase tracking-widest overflow-hidden text-center"
                     style={{
-                      background: 'transparent',
-                      border: '2px solid',
-                      borderImage: 'linear-gradient(135deg, #00ffff 0%, #ff00ff 100%) 1',
+                      background: 'linear-gradient(135deg, #00ffff 0%, #ff00ff 100%)',
+                      border: '1px solid rgba(0, 255, 255, 0.5)',
                       borderRadius: '0px'
                     }}
                   >
-                    <span className="relative z-10 bg-gradient-to-r from-cyan-400 to-pink-400 bg-clip-text text-transparent group-hover:from-white group-hover:to-white transition-all duration-300">Voir mon CV</span>
-                    <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 to-pink-500/10 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
+                    <span className="relative z-10 text-cyan-400 group-hover:text-white transition-colors duration-300">Voir mon CV</span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 to-pink-500/20 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
                   </a>
                 </div>
               </div>
             </div>
 
-            <div className="absolute bottom-12 left-1/2 -translate-x-1/2 hidden sm:flex flex-col items-center gap-2">
+            <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
               <div className="w-px h-16 bg-gradient-to-b from-cyan-400 to-transparent animate-pulse"></div>
             </div>
           </div>
@@ -488,7 +507,7 @@ const Portfolio3D = () => {
         {/* Projects Section */}
         {!selectedProject && (
           <div data-section="projects" className="min-h-screen flex items-center justify-center px-3 sm:px-4 md:px-6 pt-24">
-            <div className="w-full max-w-4xl sm:max-w-6xl md:max-w-5xl lg:max-w-70xl">
+            <div className="w-full max-w-4xl sm:max-w-6xl md:max-w-5xl lg:max-w-7xl">
               <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-center mb-16 uppercase">
                 <span style={{
                   background: 'linear-gradient(135deg, #00ffff 0%, #ff00ff 100%)',
@@ -499,24 +518,42 @@ const Portfolio3D = () => {
                 </span>
               </h2>
 
-              {/* MODIFICATION CRITIQUE : Utilisation de windowWidth pour la perspective */}
+              {/* Utilisation de windowWidth pour la perspective */}
               <div 
-                className="relative h-[350px] sm:h-[400px] md:h-[400px] lg:h-[500px]" 
+                className="relative h-[450px] sm:h-[500px] md:h-[600px] lg:h-[700px]" 
                 style={{ perspective: windowWidth < 768 ? '1000px' : '2000px' }}
               >
                 {projects.map((project, index) => {
-                  const isActive = index === currentSlide;
+                  const diff = index - currentSlide;
+                  const absPos = ((diff % projects.length) + projects.length) % projects.length;
+                  const isActive = absPos === 0;
+
+                  // NOUVELLE LOGIQUE : Définir si c'est la slide précédente ou suivante
+                  const isNext = absPos === 1 || absPos === -3;
+                  const isPrev = absPos === projects.length - 1 || absPos === -1;
+                  
+                  // Définir l'action de clic
+                  let clickAction = () => isActive ? openProject(project) : null;
+                  if (isNext) {
+                      clickAction = nextSlide;
+                  } else if (isPrev) {
+                      clickAction = prevSlide;
+                  }
+
                   return (
                     <div
                       key={project.id}
                       className="absolute inset-0 transition-all duration-700 ease-out cursor-pointer"
                       style={{
                         transform: getSlideTransform(index),
-                        opacity: Math.abs(((index - currentSlide + projects.length) % projects.length)) <= 1 ? 1 : 0,
-                        pointerEvents: isActive ? 'auto' : 'none',
+                        // Opacité : Visible si actif, suivant ou précédent
+                        opacity: isActive || isNext || isPrev ? 1 : 0,
+                        // PointerEvents : Cliquable si actif, suivant ou précédent
+                        pointerEvents: isActive || isNext || isPrev ? 'auto' : 'none',
                         transformStyle: 'preserve-3d'
                       }}
-                      onClick={() => isActive && openProject(project)}
+                      // APPLICATION DU CLIC : Ouvre le projet actif, navigue sur les autres
+                      onClick={clickAction} 
                     >
                       <div className={`relative transition-all duration-300`}>
                         {project.comingSoon && (
@@ -527,15 +564,24 @@ const Portfolio3D = () => {
 
                         <h3 className="text-xl sm:text-2xl md:text-3xl font-black mb-3 tracking-tighter uppercase text-center">{project.title}</h3>
 
-                        {/* Media only as main visual */}
+                        {/* CORRECTION CI-DESSOUS : Format 21/9 (Cinema) pour moins de hauteur, object-cover pour remplir */}
                         {project.media && project.media[0] && (project.media[0].type === 'video' ? (
                           <div className="w-full mb-4 overflow-hidden rounded-xl">
-                            {/* Les vidéos sont maintenant gérées par la règle index.css */}
-                            <video src={project.media[0].url} muted playsInline autoPlay loop className="w-full h-52 md:h-64 lg:h-72 object-cover rounded-xl" />
+                            <video 
+                                src={project.media[0].url} 
+                                muted 
+                                playsInline 
+                                autoPlay 
+                                loop 
+                                className="w-full aspect-[21/9] object-cover rounded-xl" 
+                            />
                           </div>
                         ) : (
-                          // Les images sont maintenant gérées par la règle index.css
-                          <img src={project.media[0].url} alt={project.media[0].caption || project.title} className="w-full h-52 md:h-64 lg:h-72 object-cover rounded-xl mb-4" />
+                          <img 
+                            src={project.media[0].url} 
+                            alt={project.media[0].caption || project.title} 
+                            className="w-full aspect-[21/9] object-cover rounded-xl mb-4" 
+                          />
                         ))}
 
                         <p className="text-sm text-white/80 leading-relaxed text-center px-2">{project.description}</p>
@@ -544,23 +590,7 @@ const Portfolio3D = () => {
                   );
                 })}
 
-                <button
-                  onClick={prevSlide}
-                  // CORRECTION : Adaptabilité du positionnement pour les flèches
-                  // Décalage négatif pour centrer la flèche sur le bord (translate-x-1/2) et -16 sur grand écran
-                  className="absolute left-0 top-1/2 -translate-y-1/2 p-4 bg-black/60 backdrop-blur-xl border border-white/10 hover:border-cyan-400/50 transition-all duration-300 z-10 -translate-x-1/2 md:-translate-x-16"
-                >
-                  <ChevronLeft size={32} className="text-cyan-400" />
-                </button>
-
-                <button
-                  onClick={nextSlide}
-                  // CORRECTION : Adaptabilité du positionnement pour les flèches
-                  // Décalage positif pour centrer la flèche sur le bord (translate-x-1/2) et +16 sur grand écran
-                  className="absolute right-0 top-1/2 -translate-y-1/2 p-4 bg-black/60 backdrop-blur-xl border border-white/10 hover:border-cyan-400/50 transition-all duration-300 z-10 translate-x-1/2 md:translate-x-16"
-                >
-                  <ChevronRight size={32} className="text-cyan-400" />
-                </button>
+                {/* SUPPRESSION des boutons Chevron Left et Right */}
               </div>
 
               <div className="flex justify-center gap-3 mt-12">
@@ -581,7 +611,7 @@ const Portfolio3D = () => {
           </div>
         )}
 
-        {/* Project Detail View (Pas de changement requis ici pour l'adaptabilité) */}
+        {/* Project Detail View (inchangé, sauf ajustement object-contain si souhaité) */}
         {selectedProject && (
           <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-lg overflow-y-auto pt-20">
             <button
@@ -605,13 +635,25 @@ const Portfolio3D = () => {
                   {selectedProject.media.map((item, index) => (
                     <div key={index} className="bg-white/5 backdrop-blur-md rounded-2xl p-6 animate-fade-in" style={{ animationDelay: `${index * 100}ms` }}>
                       {item.type === 'video' ? (
-                        <video controls playsInline className="w-full rounded-xl bg-black">
-                          <source src={item.url} type="video/mp4" />
-                          Votre navigateur ne supporte pas la vidéo.
-                        </video>
+                        // CORRECTION VIDÉO : Utilisation de object-contain et aspectRatio
+                        <div className="w-full rounded-xl bg-black overflow-hidden flex justify-center items-center">
+                          <video 
+                            controls 
+                            playsInline 
+                            className="w-full h-auto max-h-[70vh] object-contain" 
+                            style={{ maxHeight: '70vh' }}
+                          >
+                            <source src={item.url} type="video/mp4" />
+                            Votre navigateur ne supporte pas la vidéo.
+                          </video>
+                        </div>
                       ) : (
-                        <div className="aspect-video bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl flex items-center justify-center">
-                          <span className="text-gray-500">{item.caption}</span>
+                        <div className="w-full rounded-xl bg-black/20 overflow-hidden flex justify-center items-center">
+                            <img 
+                                src={item.url} 
+                                alt={item.caption}
+                                className="w-full h-auto max-h-[70vh] object-contain rounded-xl"
+                            />
                         </div>
                       )}
                       <p className="mt-4 text-center text-gray-300">{item.caption}</p>
@@ -693,19 +735,57 @@ const Portfolio3D = () => {
           </div>
         )}
 
-        {/* About Section */}
+        {/* EXPÉRIENCES PROFESSIONNELLES (Ex-About Section) */}
         <div data-section="about" className="min-h-screen flex items-center justify-center px-6 pt-24">
-          <div className="max-w-4xl mx-auto text-center space-y-8 animate-fade-in">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-              À Propos
+          <div className="max-w-5xl mx-auto w-full space-y-12 animate-fade-in">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent text-center">
+              Expériences Professionnelles
             </h2>
-            <div className="bg-white/5 backdrop-blur-md rounded-3xl p-12">
-              <p className="text-xl text-gray-300 leading-relaxed mb-6">
-                Passionné par la data science et l'intelligence artificielle, je crée des solutions innovantes qui transforment les données en insights exploitables.
-              </p>
-              <p className="text-xl text-gray-300 leading-relaxed">
-                Spécialisé en Business Intelligence, Machine Learning et architecture Cloud, je combine expertise technique et vision stratégique pour développer des projets à fort impact.
-              </p>
+            
+            <div className="grid gap-6">
+              {experiences.map((exp, index) => (
+                <div key={exp.id} className="group relative bg-white/5 backdrop-blur-md rounded-2xl p-6 md:p-8 border border-white/10 hover:border-cyan-400/30 transition-all duration-300 hover:bg-white/10">
+                  <div className="flex flex-col md:flex-row gap-6">
+                    {/* Colonne Logo */}
+                    <div className="flex-shrink-0">
+                        {/* Suppression du p-2 pour que l'image touche les bords */}
+                        <div className="w-16 h-16 rounded-xl bg-white/10 flex items-center justify-center overflow-hidden border border-white/10">
+                            {/* Passage à object-cover pour que l'image remplisse tout le cadre */}
+                            <img src={exp.logo} alt={exp.company} className="w-full h-full object-cover" />
+                        </div>
+                    </div>
+
+                    {/* Colonne Contenu */}
+                    <div className="flex-grow">
+                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
+                            <div className="space-y-1">
+                            <h3 className="text-xl md:text-2xl font-bold text-white group-hover:text-cyan-400 transition-colors">{exp.role}</h3>
+                            <div className="flex items-center gap-2 text-gray-400">
+                                <Briefcase size={16} />
+                                <span className="font-medium text-lg">{exp.company}</span>
+                            </div>
+                            </div>
+                            <div className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-full border border-white/10">
+                            <Calendar size={14} className="text-pink-400" />
+                            <span className="text-sm font-mono text-pink-400 font-bold">{exp.period}</span>
+                            </div>
+                        </div>
+                        
+                        <p className="text-gray-300 leading-relaxed mb-6 text-sm md:text-base">
+                            {exp.description}
+                        </p>
+
+                        <div className="flex flex-wrap gap-2">
+                            {exp.tags.map((tag, i) => (
+                            <span key={i} className="px-3 py-1 bg-white/5 rounded-full text-xs font-medium text-gray-400 border border-white/5">
+                                {tag}
+                            </span>
+                            ))}
+                        </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -721,13 +801,13 @@ const Portfolio3D = () => {
                 Intéressé par une collaboration ? N'hésitez pas à me contacter !
               </p>
               <div className="flex justify-center gap-6 pt-6">
-                <a href="mailto:contact@example.com" className="p-4 bg-white/10 backdrop-blur-md rounded-full hover:bg-white/20 transition-all duration-300 hover:scale-110">
+                <a href="mailto:djlyes94@gmail.com" className="p-4 bg-white/10 backdrop-blur-md rounded-full hover:bg-white/20 transition-all duration-300 hover:scale-110">
                   <Mail size={28} />
                 </a>
-                <a href="https://linkedin.com" className="p-4 bg-white/10 backdrop-blur-md rounded-full hover:bg-white/20 transition-all duration-300 hover:scale-110">
+                <a href="https://www.linkedin.com/in/lyesss/" className="p-4 bg-white/10 backdrop-blur-md rounded-full hover:bg-white/20 transition-all duration-300 hover:scale-110">
                   <Linkedin size={28} />
                 </a>
-                <a href="https://github.com" className="p-4 bg-white/10 backdrop-blur-md rounded-full hover:bg-white/20 transition-all duration-300 hover:scale-110">
+                <a href="https://github.com/Lyeszs" className="p-4 bg-white/10 backdrop-blur-md rounded-full hover:bg-white/20 transition-all duration-300 hover:scale-110">
                   <Github size={28} />
                 </a>
               </div>
